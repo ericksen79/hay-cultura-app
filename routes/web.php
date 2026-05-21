@@ -7,6 +7,8 @@ use App\Http\Controllers\CalculatorController;
 // Páginas
 Route::get('/',              [PageController::class, 'home'])->name('home');
 Route::get('/calculadoras',  [PageController::class, 'calculadoras'])->name('calculadoras');
+Route::get('/sobre-nosotros',[PageController::class, 'about'])->name('about');
+Route::get('/referencias',   [PageController::class, 'referencias'])->name('referencias');
 
 // Carga lazy de cada calculadora (fetch desde el frontend)
 Route::get('/calculadoras/tab/{tab}', [PageController::class, 'tab'])->name('calculadoras.tab');

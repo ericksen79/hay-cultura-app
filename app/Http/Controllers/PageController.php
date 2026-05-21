@@ -16,6 +16,16 @@ class PageController extends Controller
         return view('pages.calculadoras');
     }
 
+    public function about()
+    {
+        return view('pages.about');
+    }
+
+    public function referencias()
+    {
+        return view('pages.referencias');
+    }
+
     // Carga lazy — devuelve solo el HTML del componente sin layout
     public function tab(string $tab)
     {

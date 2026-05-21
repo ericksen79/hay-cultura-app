@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Hay Cultura App') · Calculadora Financiera SV</title>
     <meta name="description" content="@yield('meta_description', 'La mejor calculadora financiera para freelancers y micro negocios en El Salvador.')">
+    <meta property="og:title" content="@yield('og_title', 'Hay Cultura App | Finanzas claras para freelancers y PYMEs')">
+    <meta property="og:description" content="@yield('og_description', 'Herramientas y calculadoras financieras diseñadas para ayudar a emprendedores salvadoreños a entender utilidad, IVA, ISR y salud financiera de forma simple.')">
 
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,6 +60,16 @@
                        @if(request()->routeIs('calculadoras')) aria-current="page" @endif>
                         Calculadoras
                     </a>
+                    <a href="{{ route('referencias') }}"
+                       class="text-sm transition-colors {{ request()->routeIs('referencias') ? 'text-brand-primary font-medium' : 'text-surface-medium hover:text-brand-primary' }}"
+                       @if(request()->routeIs('referencias')) aria-current="page" @endif>
+                        Aprende
+                    </a>
+                    <a href="{{ route('about') }}"
+                       class="text-sm transition-colors {{ request()->routeIs('about') ? 'text-brand-primary font-medium' : 'text-surface-medium hover:text-brand-primary' }}"
+                       @if(request()->routeIs('about')) aria-current="page" @endif>
+                        Nosotros
+                    </a>
                 </div>
 
                 <a href="{{ route('calculadoras') }}"
@@ -84,10 +96,16 @@
                         Calculadora financiera para independientes en El Salvador 🇸🇻
                     </p>
                 </div>
-                <p class="text-xs text-surface-medium text-center sm:text-right leading-relaxed">
-                    Basado en legislación salvadoreña vigente.<br>
-                    No reemplaza la asesoría de un contador.
-                </p>
+                <div class="text-center sm:text-right">
+                    <p class="text-xs text-surface-medium leading-relaxed mb-2">
+                        Basado en legislación salvadoreña vigente.<br>
+                        No reemplaza la asesoría de un contador.
+                    </p>
+                    <div class="flex items-center justify-center sm:justify-end gap-4">
+                        <a href="{{ route('referencias') }}" class="text-xs text-brand-primary hover:underline">Referencias Legales</a>
+                        <a href="{{ route('about') }}" class="text-xs text-brand-primary hover:underline">Sobre Nosotros</a>
+                    </div>
+                </div>
             </div>
             <div class="border-t border-surface-light mt-6 pt-4 text-center">
                 <p class="text-xs text-surface-medium">
