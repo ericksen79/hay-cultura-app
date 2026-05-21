@@ -28,7 +28,8 @@ class CalculatorController extends Controller
             $d['gastos_fijos'],   $d['gastos_variables']
         );
 
-        $isr = ISRCalculator::calcularPersonaNatural($utilidad['utilidad_neta'] * 12);
+        // Usar utilidad_operativa (antes de la reserva plana del 15%) para ISR exacto
+        $isr = ISRCalculator::calcularPersonaNatural($utilidad['utilidad_operativa'] * 12);
 
         $iva = null;
         if (!empty($d['ventas_gravadas'])) {
@@ -36,7 +37,7 @@ class CalculatorController extends Controller
         }
 
         $retiro = ProfitCalculator::calcularRetiroSeguro(
-            $utilidad['utilidad_neta'],
+            $utilidad['utilidad_operativa'],
             $isr['mensual'],
             $d['gastos_fijos']
         );

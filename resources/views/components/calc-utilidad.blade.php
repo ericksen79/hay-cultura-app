@@ -23,7 +23,7 @@
                  const j = await res.json();
                  if (j.ok) {
                      this.resultado = j.resultado; this.mostrar = true;
-                     window.hcGuardar({ utilidad_neta: j.resultado.utilidad_neta, gastos_fijos: j.resultado.gastos_fijos });
+                     window.hcGuardar({ utilidad_operativa: j.resultado.utilidad_operativa, gastos_fijos: j.resultado.gastos_fijos });
                  } else { this.error = 'Error en el cálculo.'; }
              } catch { this.error = 'No se pudo conectar.'; }
              finally { this.cargando = false; }

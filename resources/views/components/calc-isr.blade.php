@@ -1,6 +1,19 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"
      x-data="{
-         cargando: false, mostrar: false, reset: false, error: null, resultado: null,
+         cargando: false, mostrar: false, reset: false, error: null, resultado: null, precargado: false,
+         cargarDatos() {
+             const u = window.hcLeer('utilidad_operativa');
+             if (u !== null && !document.getElementById('isr-renta').value) {
+                 document.getElementById('isr-renta').value = (u * 12).toFixed(2);
+                 this.precargado = true;
+             }
+         },
+         init() {
+             this.cargarDatos();
+             window.addEventListener('tab-cambiado', (e) => {
+                 if (e.detail === 'isr') this.cargarDatos();
+             });
+         },
          async calcular() {
              this.cargando = true; this.error = null;
              const renta = document.getElementById('isr-renta').value;
@@ -42,6 +55,20 @@
                     :class="reset ? 'border-red-300 text-red-500 bg-red-50' : 'border-surface-light text-surface-medium hover:border-brand-light hover:text-brand-primary'">
                 <span class="icon icon-sm">restart_alt</span>
                 <span x-text="reset ? '¿Confirmar?' : 'Limpiar'"></span>
+            </button>
+        </div>
+
+        <div x-show="precargado"
+             class="bg-brand-primary/8 border border-brand-primary/20 rounded-xl px-3 py-2 mt-3 mb-4 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="icon icon-sm text-brand-primary">download</span>
+                <p class="text-xs text-brand-primary">Renta anual estimada calculada en base a tu utilidad.</p>
+            </div>
+        </div>
+
+        <div x-show="window.hcLeer('utilidad_operativa') !== null && !precargado" class="mb-4 mt-4">
+            <button type="button" @click="cargarDatos()" class="w-full inline-flex items-center justify-center gap-2 bg-surface-light text-surface-dark text-xs font-medium py-2.5 rounded-xl hover:bg-surface-light/80 transition-colors">
+                <span class="icon icon-sm">download</span> Cargar y proyectar datos guardados
             </button>
         </div>
 

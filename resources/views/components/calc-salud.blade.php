@@ -29,7 +29,7 @@
                 this.utilidad = j.utilidad; this.isr = j.isr;
                 this.iva = j.iva; this.retiro = j.retiro;
                 this.mostrar = true;
-                window.hcGuardar({ utilidad_neta: j.utilidad.utilidad_neta, isr_mensual: j.isr.mensual, gastos_fijos: j.utilidad.gastos_fijos });
+                window.hcGuardar({ utilidad_operativa: j.utilidad.utilidad_operativa, isr_mensual: j.isr.mensual, gastos_fijos: j.utilidad.gastos_fijos });
             } else { this.error = 'Error en el cálculo. Verifica los valores.'; }
         } catch { this.error = 'No se pudo conectar. Revisa tu conexión.'; }
         finally { this.cargando = false; }
@@ -271,9 +271,9 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="w-2.5 h-2.5 rounded-full bg-[#A32D2D] flex-shrink-0"></div>
-                                <span class="text-xs text-surface-medium">− Reserva para impuestos</span>
+                                <span class="text-xs text-surface-medium">− ISR Estimado</span>
                             </div>
-                            <span class="text-xs font-medium text-[#A32D2D]" x-text="'−$' + utilidad.reserva_isr.toFixed(2)"></span>
+                            <span class="text-xs font-medium text-[#A32D2D]" x-text="'−$' + isr.mensual.toFixed(2)"></span>
                         </div>
                         <div class="border-t border-surface-light pt-2 flex items-center justify-between">
                             <div class="flex items-center gap-2">
@@ -282,7 +282,7 @@
                             </div>
                             <span class="text-sm font-semibold"
                                   :class="utilidad.es_rentable ? 'text-[#0F6E56]' : 'text-[#A32D2D]'"
-                                  x-text="'$' + utilidad.utilidad_neta.toFixed(2)"></span>
+                                  x-text="'$' + (utilidad.utilidad_operativa - isr.mensual).toFixed(2)"></span>
                         </div>
                     </div>
                 </div>

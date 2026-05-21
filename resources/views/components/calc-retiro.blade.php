@@ -1,13 +1,23 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"
      x-data="{
          cargando: false, mostrar: false, reset: false, error: null, resultado: null, precargado: false,
-         init() {
-             const u = window.hcLeer('utilidad_neta');
+         cargarDatos() {
+             const u = window.hcLeer('utilidad_operativa');
              const i = window.hcLeer('isr_mensual');
              const f = window.hcLeer('gastos_fijos');
-             if (u !== null) { document.getElementById('ret-utilidad').value = u.toFixed(2); this.precargado = true; }
-             if (i !== null) { document.getElementById('ret-reserva').value = i.toFixed(2); }
-             if (f !== null) { document.getElementById('ret-caja').value = f.toFixed(2); }
+             
+             let actualizo = false;
+             if (u !== null && !document.getElementById('ret-utilidad').value) { document.getElementById('ret-utilidad').value = u.toFixed(2); actualizo = true; }
+             if (i !== null && !document.getElementById('ret-reserva').value) { document.getElementById('ret-reserva').value = i.toFixed(2); actualizo = true; }
+             if (f !== null && !document.getElementById('ret-caja').value) { document.getElementById('ret-caja').value = f.toFixed(2); actualizo = true; }
+             
+             if (actualizo) { this.precargado = true; }
+         },
+         init() {
+             this.cargarDatos();
+             window.addEventListener('tab-cambiado', (e) => {
+                 if (e.detail === 'retiro') this.cargarDatos();
+             });
          },
          async calcular() {
              this.cargando = true; this.error = null;
@@ -58,13 +68,21 @@
         </div>
 
         <div x-show="precargado"
-             class="bg-brand-primary/8 border border-brand-primary/20 rounded-xl px-3 py-2 mt-3 mb-4 flex items-center gap-2">
-            <span class="icon icon-sm text-brand-primary">download</span>
-            <p class="text-xs text-brand-primary">Datos cargados desde la calculadora de utilidad mensual.</p>
+             class="bg-brand-primary/8 border border-brand-primary/20 rounded-xl px-3 py-2 mt-3 mb-4 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="icon icon-sm text-brand-primary">download</span>
+                <p class="text-xs text-brand-primary">Datos cargados desde otras calculadoras.</p>
+            </div>
+        </div>
+
+        <div x-show="window.hcLeer('utilidad_operativa') !== null && !precargado" class="mb-4">
+            <button type="button" @click="cargarDatos()" class="w-full inline-flex items-center justify-center gap-2 bg-surface-light text-surface-dark text-xs font-medium py-2.5 rounded-xl hover:bg-surface-light/80 transition-colors">
+                <span class="icon icon-sm">download</span> Cargar datos guardados
+            </button>
         </div>
 
         <div class="mt-4">
-            @include('components.input-field', ['id'=>'ret-utilidad','label'=>'Utilidad neta del mes','prefix'=>'$','hint'=>'Tu ganancia del mes ya descontando todos los gastos','helper'=>'Obtenla con la calculadora de utilidad mensual primero.'])
+            @include('components.input-field', ['id'=>'ret-utilidad','label'=>'Ganancia operativa (antes de ISR)','prefix'=>'$','hint'=>'Tu ganancia del mes descontando costos y gastos','helper'=>'Obtenla con la calculadora de utilidad mensual primero.'])
             @include('components.input-field', ['id'=>'ret-reserva','label'=>'Reserva para impuestos','prefix'=>'$','hint'=>'Lo que debes apartar para pagar ISR e IVA','helper'=>'Si no lo sabes, usa el 15% de tu utilidad.','tooltip'=>'Este dinero sigue en tu cuenta, pero es intocable. Sacarlo hoy significa no tener para pagar Hacienda después.'])
             @include('components.input-field', ['id'=>'ret-caja','label'=>'Caja mínima para operar','prefix'=>'$','hint'=>'Lo mínimo para operar el próximo mes','helper'=>'Regla simple: usa tus gastos fijos del mes.'])
         </div>

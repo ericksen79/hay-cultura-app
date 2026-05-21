@@ -80,6 +80,9 @@ function mostrarTab(id) {
             .replace('text-surface-medium', 'text-white')
             .replace('border-surface-light', 'border-brand-primary');
     }
+
+    // Notificar a los componentes Alpine que la pestaña cambió
+    window.dispatchEvent(new CustomEvent('tab-cambiado', { detail: id }));
 }
 
 // Mostrar salud por defecto al cargar
