@@ -119,13 +119,22 @@ class CalculatorController extends Controller
     public function gastos(Request $request): JsonResponse
     {
         $d = $request->validate([
-            'gastos'   => 'required|array|min:1',
-            'gastos.*' => 'string|max:100',
+            'gastos'          => 'required|array|min:1',
+            'gastos.*.nombre' => 'required|string|max:100',
+            'gastos.*.precio' => 'nullable|numeric|min:0',
         ]);
+
+        $resultados = ExpenseClassifier::clasificar($d['gastos']);
+
+        // Ordenar: deducible -> activo -> revisar (consultar) -> no_deducible
+        $orden = ['deducible' => 1, 'activo' => 2, 'revisar' => 3, 'no_deducible' => 4];
+        usort($resultados, function($a, $b) use ($orden) {
+            return $orden[$a['tipo']] <=> $orden[$b['tipo']];
+        });
 
         return response()->json([
             'ok'         => true,
-            'resultados' => ExpenseClassifier::clasificar($d['gastos']),
+            'resultados' => $resultados,
         ]);
     }
 }

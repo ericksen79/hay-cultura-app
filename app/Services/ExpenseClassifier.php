@@ -25,6 +25,23 @@ namespace App\Services;
 
 class ExpenseClassifier
 {
+    /*
+    |--------------------------------------------------------------------------
+    | ESPACIO PARA AMPLIAR LAS LISTAS DE CLASIFICACIÓN (FÁCIL EXPANSIÓN)
+    |--------------------------------------------------------------------------
+    | Si deseas agregar nuevos términos o palabras clave para clasificar,
+    | agrégalos en minúsculas en el array correspondiente a continuación.
+    |
+    | EJEMPLOS:
+    |   - Para agregar un nuevo Deducible (ej. "fiverr"):
+    |     Agrégalo al final de $deducibles: 'fiverr'
+    |   - Para agregar un nuevo No Deducible (ej. "ps5"):
+    |     Agrégalo al final de $noDeducibles: 'ps5'
+    |   - Para agregar un nuevo Activo Depreciable (ej. "servidor local"):
+    |     Agrégalo al final de $activos: 'servidor local'
+    |
+    */
+
     // ─── NO DEDUCIBLES primero (Art. 29-A LISR) ───────────────────────────
     // Se evalúan ANTES que los deducibles para evitar falsos positivos.
     // Solo gastos PERSONALES o sin relación con el negocio.
@@ -206,9 +223,75 @@ class ExpenseClassifier
 
     // ─── API pública ───────────────────────────────────────────────────────
 
+    /**
+     * Clasifica una lista de gastos, procesando nombres y precios.
+     */
     public static function clasificar(array $gastos): array
     {
-        return array_map(fn($g) => self::clasificarUno($g), $gastos);
+        return array_map(function($g) {
+            $nombre = is_array($g) ? ($g['nombre'] ?? '') : $g;
+            $precio = is_array($g) ? (float)($g['precio'] ?? 0) : 0.0;
+            
+            $res = self::clasificarUno($nombre);
+            $res['precio'] = $precio;
+
+            // Si es un activo depreciable, inyectar el cálculo de depreciación
+            if ($res['tipo'] === 'activo') {
+                $pct = self::obtenerPorcentajeDepreciacion($nombre);
+                $res['porcentaje_depreciacion'] = $pct;
+                $res['depreciacion_anual'] = round($precio * ($pct / 100), 2);
+                $res['depreciacion_mensual'] = round(($precio * ($pct / 100)) / 12, 2);
+                $res['consejo'] = "Se deprecia al {$pct}% anual (LISR Art. 30). " . $res['consejo'];
+            }
+            
+            return $res;
+        }, $gastos);
+    }
+
+    /**
+     * Obtiene el porcentaje de depreciación anual según el Art. 30 de la LISR de El Salvador
+     */
+    public static function obtenerPorcentajeDepreciacion(string $gasto): float
+    {
+        $n = strtolower(trim($gasto));
+
+        // 1. Equipo de cómputo y software (50% anual - 2 años de vida útil)
+        $tecnologia = [
+            'laptop', 'computadora', 'computador', 'pc', 'mac', 'imac', 'macbook',
+            'ipad', 'tablet', 'monitor', 'teclado', 'mouse', 'impresora',
+            'escaner', 'escáner', 'router', 'disco', 'ssd', 'ram', 'ups', 'switch',
+            'licencia de software', 'software adquirido', 'software', 'sistema', 'aplicación', 'dominio web'
+        ];
+        foreach ($tecnologia as $p) {
+            if (str_contains($n, $p)) {
+                return 50.0;
+            }
+        }
+
+        // 2. Vehículos y transporte (25% anual - 4 años de vida útil)
+        $vehiculos = [
+            'vehículo', 'vehiculo', 'carro', 'auto', 'automóvil',
+            'motocicleta', 'moto', 'camioneta', 'pickup', 'furgoneta', 'bicicleta'
+        ];
+        foreach ($vehiculos as $p) {
+            if (str_contains($n, $p)) {
+                return 25.0;
+            }
+        }
+
+        // 3. Edificaciones e inmuebles de la empresa (5% anual - 20 años de vida útil)
+        $edificios = [
+            'edificio', 'local comercial', 'bodega', 'oficina', 'taller', 'casa negocio'
+        ];
+        foreach ($edificios as $p) {
+            if (str_contains($n, $p)) {
+                return 5.0;
+            }
+        }
+
+        // 4. Maquinaria, herramientas duraderas y mobiliario de oficina (20% anual - 5 años de vida útil)
+        // Por defecto según Art. 30 LISR para otros bienes muebles depreciables
+        return 20.0;
     }
 
     private static function clasificarUno(string $gasto): array
