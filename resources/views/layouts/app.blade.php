@@ -15,6 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0" />
+    <link rel="icon" href="{{ asset('images/favicon.svg') }}" type="image/png">
+
 
     {{-- Vite: carga Tailwind compilado + Alpine --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -38,13 +40,13 @@
 
                 {{-- Logo --}}
                 <a href="{{ route('home') }}"
-                   class="flex items-center gap-2"
-                   aria-label="Hay Cultura App — Inicio">
-                    <div class="w-7 h-7 rounded-lg bg-brand-primary flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-xs font-semibold">HC</span>
-                    </div>
+                class="flex items-center gap-2"
+                aria-label="Hay Cultura App — Inicio">
+                    <img src="{{ asset('images/logo-hc.svg') }}" 
+                        alt="Hay Cultura App" 
+                        class="w-7 h-7 flex-shrink-0">
                     <span class="text-brand-primary font-semibold text-[15px]">
-                        Hay Cultura <span class="text-brand-secondary">App</span>
+                        Hay Cultura <span class="text-brand-primary">App</span>
                     </span>
                 </a>
 
@@ -91,7 +93,38 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                    <p class="text-sm font-medium text-brand-primary">Hay Cultura App</p>
+                    {{-- Logo + Redes sociales --}}
+                    <a href="{{ route('home') }}"
+                    class="flex items-center gap-2"
+                    aria-label="Hay Cultura App — Inicio">
+                        <img src="{{ asset('images/logo-footer.svg') }}" 
+                            alt="Hay Cultura App" 
+                            class="w-50 h-44 flex-shrink-0">
+                    </a>
+
+                    {{-- Redes sociales --}}
+                    <div class="flex items-center gap-3 mt-3">
+                        <a href="https://facebook.com/tu-pagina" target="_blank" aria-label="Facebook">
+                            <img src="{{ asset('images/icons/facebook.svg') }}" 
+                                alt="Facebook" 
+                                class="w-5 h-5 hover:opacity-80">
+                        </a>
+                        <a href="mailto:info@haysalvador.com" target="_blank" aria-label="mail">
+                            <img src="{{ asset('images/icons/mail.svg') }}" 
+                                alt="mail" 
+                                class="w-5 h-5 hover:opacity-80">
+                        </a>
+                        <a href="https://instagram.com/tu-pagina" target="_blank" aria-label="Instagram">
+                            <img src="{{ asset('images/icons/instagram.svg') }}" 
+                                alt="Instagram" 
+                                class="w-5 h-5 hover:opacity-80">
+                        </a>
+                            <a href="https://instagram.com/tu-pagina" target="_blank" aria-label="Instagram">
+                            <img src="{{ asset('images/icons/web-page.svg') }}" 
+                                alt="Instagram" 
+                                class="w-5 h-5 hover:opacity-80">
+                        </a>
+                    </div>
                     <p class="text-xs text-surface-medium mt-0.5">
                         Calculadora financiera para independientes en El Salvador 🇸🇻
                     </p>
@@ -109,7 +142,7 @@
             </div>
             <div class="border-t border-surface-light mt-6 pt-4 text-center">
                 <p class="text-xs text-surface-medium">
-                    © {{ date('Y') }} Hay Cultura App · Tus datos son privados · Hecho en El Salvador
+                    © {{ date('Y') }} <a href="https://www.mino.solutions" target="_blank" class="text-brand-primary hover:underline">MINO Solutions</a> · Tus datos son privados · Hecho en El Salvador
                 </p>
             </div>
         </div>
