@@ -26,6 +26,11 @@ class PageController extends Controller
         return view('pages.referencias');
     }
 
+    public function freelancer()
+    {
+        return view('pages.freelancer');
+    }
+
     // Carga lazy — devuelve solo el HTML del componente sin layout
     public function tab(string $tab)
     {

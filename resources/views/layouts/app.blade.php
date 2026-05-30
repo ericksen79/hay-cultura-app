@@ -62,6 +62,11 @@
                        @if(request()->routeIs('calculadoras')) aria-current="page" @endif>
                         Calculadoras
                     </a>
+                    <a href="{{ route('freelancer.index') }}"
+                       class="text-sm transition-colors {{ request()->routeIs('freelancer.index') ? 'text-brand-primary font-medium' : 'text-surface-medium hover:text-brand-primary' }}"
+                       @if(request()->routeIs('freelancer.index')) aria-current="page" @endif>
+                        Freelancer
+                    </a>
                     <a href="{{ route('referencias') }}"
                        class="text-sm transition-colors {{ request()->routeIs('referencias') ? 'text-brand-primary font-medium' : 'text-surface-medium hover:text-brand-primary' }}"
                        @if(request()->routeIs('referencias')) aria-current="page" @endif>
@@ -135,6 +140,7 @@
                         No reemplaza la asesoría de un contador.
                     </p>
                     <div class="flex items-center justify-center sm:justify-end gap-4">
+                        <a href="{{ route('freelancer.index') }}" class="text-xs text-brand-primary hover:underline">Freelancer Internacional</a>
                         <a href="{{ route('referencias') }}" class="text-xs text-brand-primary hover:underline">Referencias Legales</a>
                         <a href="{{ route('about') }}" class="text-xs text-brand-primary hover:underline">Sobre Nosotros</a>
                     </div>

@@ -49,6 +49,36 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
+        {{-- Card Freelancer Internacional - Premium Highlight --}}
+        <a href="{{ route('freelancer.index') }}"
+           class="lg:col-span-3 bg-gradient-to-br from-brand-primary/5 to-brand-secondary/5 rounded-2xl p-6 card-shadow border border-brand-primary/20
+                  hover:border-brand-primary transition-all group relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-brand-primary/10 rounded-full blur-2xl"></div>
+            <div class="flex flex-col sm:flex-row items-start justify-between gap-4">
+                <div class="flex-1">
+                    <span class="inline-flex items-center gap-1 bg-brand-primary/15 text-brand-primary text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-3 uppercase tracking-wider">
+                        🌎 Nuevo · Especial Autónomos
+                    </span>
+                    <h2 class="text-lg font-bold text-surface-dark mb-2 group-hover:text-brand-primary transition-colors">
+                        Freelancer Internacional SV
+                    </h2>
+                    <p class="text-xs text-surface-medium leading-relaxed mb-4 max-w-3xl">
+                        ¿Trabajas para clientes en el extranjero y cobras por Wise, Payoneer, SWIFT, PayPal o Stripe? Calcula tu eficiencia de cobro, tus comisiones reales en El Salvador, tu reserva óptima de impuestos (ISR) y cotizaciones médicas independientes.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach(['Flujo de Dinero', 'Comisiones reales', 'Comparador de Plataformas', 'Checklist de Formalización'] as $tag)
+                            <span class="text-[10px] font-medium bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-lg">
+                                {{ $tag }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-brand-primary/15 flex items-center justify-center flex-shrink-0">
+                    <span class="icon icon-xl text-brand-primary">public</span>
+                </div>
+            </div>
+        </a>
+
         {{-- Card grande --}}
         <a href="{{ route('calculadoras') }}"
            class="lg:col-span-2 bg-white rounded-2xl p-6 card-shadow border border-surface-light
