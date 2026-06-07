@@ -43,11 +43,13 @@
     agregarGasto() {
         this.gastos.push({ concepto: '', monto: '' });
         this.mostrarToast('Fila de gasto agregada.');
+        this.notificarCambio();
     },
 
     quitarGasto(index) {
         this.gastos.splice(index, 1);
         this.mostrarToast('Fila de gasto eliminada.');
+        this.notificarCambio();
     },
 
     obtenerTotalGastos() {
@@ -89,6 +91,7 @@
                     isr_mensual: j.resultado.isr.mensual_sugerido,
                     gastos_fijos: j.resultado.gastos_operativos.total
                 });
+                this.notificarCambio();
             } else { 
                 this.error = 'Error en el cálculo. Verifica que los montos sean correctos.'; 
             }
@@ -121,6 +124,60 @@
         this.reset = false;
         this.mostrarToast('Formulario restablecido.');
         window.hcLimpiarTodo();
+        this.notificarCambio();
+    },
+
+    notificarCambio() {
+        window.dispatchEvent(new CustomEvent('freelancer-actualizado', {
+            detail: {
+                monto_facturado: this.monto_facturado,
+                inscrito_hacienda: this.inscrito_hacienda,
+                cotiza_isss: this.cotiza_isss,
+                gastos_activos: this.gastos.filter(g => g.concepto && parseFloat(g.monto) > 0).length > 0
+            }
+        }));
+    },
+
+    init() {
+        window.addEventListener('formalizacion-cambiado', (e) => {
+            if (e.detail) {
+                const { id, checked } = e.detail;
+                let cambiado = false;
+                
+                if (id === 'declaras' || id === 'reserva') {
+                    if (this.inscrito_hacienda !== checked) {
+                        this.inscrito_hacienda = checked;
+                        cambiado = true;
+                    }
+                } else if (id === 'isss') {
+                    if (checked) {
+                        if (this.cotiza_isss === 'no') {
+                            this.cotiza_isss = 'individual';
+                            cambiado = true;
+                        }
+                    } else {
+                        if (this.cotiza_isss !== 'no') {
+                            this.cotiza_isss = 'no';
+                            cambiado = true;
+                        }
+                    }
+                }
+                
+                if (cambiado && this.monto_facturado > 0) {
+                    this.calcular();
+                }
+            }
+        });
+        
+        window.addEventListener('comparator-actualizado', (e) => {
+            if (e.detail && e.detail.monto) {
+                const nuevoMonto = parseFloat(e.detail.monto);
+                if (nuevoMonto > 0 && nuevoMonto !== parseFloat(this.monto_facturado)) {
+                    this.monto_facturado = nuevoMonto;
+                    this.calcular();
+                }
+            }
+        });
     }
 }">
 
@@ -313,6 +370,7 @@
                            min="0.01"
                            step="0.01"
                            x-model="monto_facturado"
+                           @input.debounce.500ms="notificarCambio()"
                            class="flex-1 px-3 py-2.5 text-sm text-surface-dark bg-transparent outline-none placeholder-surface-light/70">
                 </div>
                 <span class="text-[10px] text-surface-medium block mt-1">💡 Helper: Escribe el valor neto facturado. Ej: 2000.00</span>
@@ -462,7 +520,7 @@
                         <p class="text-[10px] text-surface-medium">Actívalo si calculas y reservas mes a mes tu ISR estimado (F11 anual).</p>
                     </div>
                     <div class="relative flex-shrink-0">
-                        <input type="checkbox" x-model="inscrito_hacienda" class="sr-only">
+                        <input type="checkbox" x-model="inscrito_hacienda" @change="notificarCambio()" class="sr-only">
                         <div class="w-9 h-5 rounded-full transition-colors" :class="inscrito_hacienda ? 'bg-brand-primary' : 'bg-surface-light'"></div>
                         <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :class="inscrito_hacienda ? 'translate-x-4' : 'translate-x-0'"></div>
                     </div>
@@ -490,6 +548,7 @@
                     </div>
                     <select id="cotiza_isss"
                             x-model="cotiza_isss"
+                            @change="notificarCambio()"
                             class="w-full bg-surface-white border border-surface-light rounded-xl px-3 py-2.5 text-sm text-surface-dark outline-none focus:border-brand-primary transition-colors">
                         <option value="no">No cotizo ISSS (Sin seguro público)</option>
                         <option value="individual">Sí, Cobertura Individual ($40.00/mes)</option>
@@ -786,4 +845,5 @@
             </div>
         </template>
     </div>
+</div>
 </div>

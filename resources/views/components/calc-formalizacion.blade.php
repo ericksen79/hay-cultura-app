@@ -67,7 +67,37 @@
     },
 
     reiniciar() {
-        this.preguntas.forEach(p => p.check = false);
+        this.preguntas.forEach(p => {
+            p.check = false;
+            this.notificarCambio(p.id, false);
+        });
+    },
+
+    notificarCambio(id, checked) {
+        window.dispatchEvent(new CustomEvent('formalizacion-cambiado', {
+            detail: { id: id, checked: checked }
+        }));
+    },
+
+    init() {
+        window.addEventListener('freelancer-actualizado', (e) => {
+            if (e.detail) {
+                // Sync declaras and reserva questions
+                const qDeclaras = this.preguntas.find(p => p.id === 'declaras');
+                if (qDeclaras) qDeclaras.check = e.detail.inscrito_hacienda;
+
+                const qReserva = this.preguntas.find(p => p.id === 'reserva');
+                if (qReserva) qReserva.check = e.detail.inscrito_hacienda;
+
+                // Sync isss question
+                const qIsss = this.preguntas.find(p => p.id === 'isss');
+                if (qIsss) qIsss.check = (e.detail.cotiza_isss !== 'no');
+
+                // Sync gastos question
+                const qGastos = this.preguntas.find(p => p.id === 'gastos');
+                if (qGastos) qGastos.check = e.detail.gastos_activos;
+            }
+        });
     }
 }">
 
@@ -94,6 +124,7 @@
                 <label class="flex items-start gap-3.5 p-3 rounded-xl hover:bg-surface-light/20 cursor-pointer transition-colors border border-transparent hover:border-surface-light/40">
                     <input type="checkbox"
                            x-model="pregunta.check"
+                           @change="notificarCambio(pregunta.id, pregunta.check)"
                            class="rounded text-brand-primary focus:ring-brand-primary w-4.5 h-4.5 mt-0.5 flex-shrink-0">
                     <div>
                         <span class="text-xs font-semibold text-surface-dark" x-text="pregunta.text"></span>
@@ -171,4 +202,5 @@
             </a>
         </div>
     </div>
+</div>
 </div>

@@ -1,5 +1,5 @@
 <div x-data="{
-    monto: 2000, cargando: false, resultados: null, error: null,
+    monto: 2000, cargando: false, resultados: null, error: null, expandedId: null,
 
     async comparar() {
         this.cargando = true; this.error = null;
@@ -17,6 +17,7 @@
             const j = await res.json();
             if (j.ok) {
                 this.resultados = j.resultados;
+                window.dispatchEvent(new CustomEvent('comparator-actualizado', { detail: { monto: this.monto } }));
             } else { this.error = 'Error al comparar plataformas.'; }
         } catch { this.error = 'Error de conexión.'; }
         finally { this.cargando = false; }
@@ -26,6 +27,15 @@
         this.comparar();
         window.addEventListener('tab-cambiado', (e) => {
             if (e.detail === 'comparator' && !this.resultados) this.comparar();
+        });
+        window.addEventListener('freelancer-actualizado', (e) => {
+            if (e.detail && e.detail.monto_facturado) {
+                const nuevoMonto = parseFloat(e.detail.monto_facturado);
+                if (nuevoMonto > 0 && nuevoMonto !== parseFloat(this.monto)) {
+                    this.monto = nuevoMonto;
+                    this.comparar();
+                }
+            }
         });
     }
 }">
@@ -135,22 +145,29 @@
 
                     <div class="space-y-4">
                         <template x-for="(plat, index) in resultados" :key="plat.id">
-                            <div class="space-y-1.5">
-                                <div class="flex justify-between items-center text-xs">
+                            <div class="space-y-1.5 border-b border-surface-light pb-3 last:border-0 last:pb-0">
+                                <div class="flex justify-between items-center text-xs cursor-pointer select-none p-1.5 rounded-xl hover:bg-surface-light/20 transition-colors"
+                                     @click="expandedId = (expandedId === plat.id ? null : plat.id)">
                                     <div class="flex items-center gap-2">
                                         <div class="w-6 h-6 rounded-lg bg-surface-light/30 flex items-center justify-center text-brand-primary">
                                             <span class="icon text-sm" x-text="plat.logo"></span>
                                         </div>
-                                        <span class="font-semibold text-surface-dark" x-text="plat.nombre"></span>
+                                        <div>
+                                            <span class="font-semibold text-surface-dark" x-text="plat.nombre"></span>
+                                            <span class="text-[9px] text-surface-medium/50 block">Clic para ver detalle</span>
+                                        </div>
                                     </div>
-                                    <div class="text-right">
-                                        <span class="font-bold text-surface-dark" x-text="'$' + plat.neto.toFixed(2)"></span>
-                                        <span class="text-[10px] text-surface-medium/70 ml-1.5" x-text="'(Eficiencia: ' + plat.eficiencia + '%)'"></span>
+                                    <div class="flex items-center gap-1.5 text-right">
+                                        <div>
+                                            <span class="font-bold text-surface-dark" x-text="'$' + plat.neto.toFixed(2)"></span>
+                                            <span class="text-[10px] text-surface-medium/70 ml-1.5" x-text="'(' + plat.eficiencia + '%)'"></span>
+                                        </div>
+                                        <span class="icon text-surface-medium transition-transform duration-200" :class="expandedId === plat.id ? 'rotate-180' : ''">expand_more</span>
                                     </div>
                                 </div>
 
                                 {{-- Barra de eficiencia --}}
-                                <div class="relative">
+                                <div class="relative px-1.5">
                                     <div class="w-full bg-surface-light/30 rounded-full h-2.5 overflow-hidden">
                                         <div class="h-full rounded-full transition-all duration-700"
                                              :class="{
@@ -176,6 +193,38 @@
                                         </span>
                                     </div>
                                 </div>
+
+                                {{-- Detalle de Acordeón --}}
+                                <div x-show="expandedId === plat.id"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 transform translate-y-0"
+                                     x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                     class="bg-surface-light/20 border border-surface-light/40 rounded-xl p-3.5 mt-2 space-y-2.5 text-xs text-surface-medium leading-relaxed"
+                                     style="display: none;">
+                                     
+                                     <div class="grid grid-cols-3 gap-2 text-[11px] border-b border-surface-light/40 pb-2">
+                                         <div>
+                                             <span class="text-[9px] uppercase tracking-wider text-surface-medium/60 block">Pasarela</span>
+                                             <span class="font-semibold text-surface-dark" x-text="'$' + (plat.detalles.plataforma || 0).toFixed(2)"></span>
+                                         </div>
+                                         <div>
+                                             <span class="text-[9px] uppercase tracking-wider text-surface-medium/60 block">Banco/Retiro</span>
+                                             <span class="font-semibold text-surface-dark" x-text="'$' + (plat.detalles.banco || 0).toFixed(2)"></span>
+                                         </div>
+                                         <div>
+                                             <span class="text-[9px] uppercase tracking-wider text-surface-medium/60 block">Corresponsal</span>
+                                             <span class="font-semibold text-surface-dark" x-text="'$' + (plat.detalles.corresponsal || 0).toFixed(2)"></span>
+                                         </div>
+                                     </div>
+                                     
+                                     <div class="flex items-start gap-1.5 text-[11px]">
+                                         <span class="icon text-xs text-brand-primary mt-0.5">info</span>
+                                         <p class="text-surface-medium" x-text="plat.observacion"></p>
+                                     </div>
+                                </div>
                             </div>
                         </template>
                     </div>
@@ -190,4 +239,5 @@
             </div>
         </template>
     </div>
+</div>
 </div>

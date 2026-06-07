@@ -257,12 +257,48 @@ class FreelancerCalculator
                     return ['fee' => $fee, 'banco' => $retiro, 'neto' => max(0.00, round($remanente - $retiro, 2))];
                 }
             ],
-            'swift' => [
+            'swift_agricola' => [
                 'nombre' => 'SWIFT Directo (Banco Agrícola)',
                 'logo' => 'language',
                 'calcular' => function($m) {
                     $corresponsal = 25.00;
                     $receptor = ($m <= 3000.00) ? 5.65 : 11.30;
+                    return ['fee' => $corresponsal, 'banco' => $receptor, 'neto' => max(0.00, round($m - $corresponsal - $receptor, 2))];
+                }
+            ],
+            'swift_bac' => [
+                'nombre' => 'SWIFT Directo (BAC Credomatic)',
+                'logo' => 'language',
+                'calcular' => function($m) {
+                    $corresponsal = 25.00;
+                    $receptor = 35.00;
+                    return ['fee' => $corresponsal, 'banco' => $receptor, 'neto' => max(0.00, round($m - $corresponsal - $receptor, 2))];
+                }
+            ],
+            'swift_cuscatlan' => [
+                'nombre' => 'SWIFT Directo (Banco Cuscatlán)',
+                'logo' => 'language',
+                'calcular' => function($m) {
+                    $corresponsal = 25.00;
+                    $receptor = 12.50;
+                    return ['fee' => $corresponsal, 'banco' => $receptor, 'neto' => max(0.00, round($m - $corresponsal - $receptor, 2))];
+                }
+            ],
+            'swift_promerica' => [
+                'nombre' => 'SWIFT Directo (Banco Promerica)',
+                'logo' => 'language',
+                'calcular' => function($m) {
+                    $corresponsal = 25.00;
+                    $receptor = 20.00;
+                    return ['fee' => $corresponsal, 'banco' => $receptor, 'neto' => max(0.00, round($m - $corresponsal - $receptor, 2))];
+                }
+            ],
+            'swift_industrial' => [
+                'nombre' => 'SWIFT Directo (Banco Industrial)',
+                'logo' => 'language',
+                'calcular' => function($m) {
+                    $corresponsal = 25.00;
+                    $receptor = 10.00;
                     return ['fee' => $corresponsal, 'banco' => $receptor, 'neto' => max(0.00, round($m - $corresponsal - $receptor, 2))];
                 }
             ],
@@ -310,6 +346,15 @@ class FreelancerCalculator
                     return ['fee' => $fee, 'banco' => $retiro, 'neto' => max(0.00, round($m - $fee - $retiro, 2))];
                 }
             ],
+            'bitcoin' => [
+                'nombre' => 'Bitcoin / Chivo Wallet',
+                'logo' => 'currency_bitcoin',
+                'calcular' => function($m) {
+                    $fee = round($m * 0.01, 2);
+                    $retiro = 2.00;
+                    return ['fee' => $fee, 'banco' => $retiro, 'neto' => max(0.00, round($m - $fee - $retiro, 2))];
+                }
+            ],
             'hugo_cash' => [
                 'nombre' => 'Hugo Cash / Pasarela local',
                 'logo' => 'storefront',
@@ -332,7 +377,13 @@ class FreelancerCalculator
                 'logo'       => $p['logo'],
                 'comision'   => $totalFee,
                 'neto'       => $calc['neto'],
-                'eficiencia' => $eficiencia
+                'eficiencia' => $eficiencia,
+                'detalles'   => [
+                    'plataforma'   => $calc['fee'] ?? 0.00,
+                    'banco'        => $calc['banco'] ?? 0.00,
+                    'corresponsal' => (strpos($id, 'swift') === 0) ? 25.00 : 0.00,
+                ],
+                'observacion' => self::obtenerObservacionPlataforma($id)
             ];
         }
 
@@ -342,5 +393,29 @@ class FreelancerCalculator
         });
 
         return $resultados;
+    }
+
+    /**
+     * Obtiene una observación educativa útil para la plataforma dada.
+     */
+    private static function obtenerObservacionPlataforma(string $id): string
+    {
+        return match ($id) {
+            'wise' => 'Wise cobra comisiones bajas (1%) y retiro plano de $3.00. Muy recomendado.',
+            'payoneer' => 'Payoneer aplica 3.99% + $0.49 por recibir y cobra 2.0% adicional por transferir a bancos de El Salvador.',
+            'swift_agricola' => 'El dinero viaja por SWIFT a Banco Agrícola. Aplica comisión corresponsal ($25) y receptor local bajo ($5.65 hasta $3,000, luego $11.30). Recomendado para montos altos.',
+            'swift_bac' => 'SWIFT a BAC Credomatic. Aplica corresponsal ($25) y una comisión receptora alta de $35. No recomendado para montos pequeños.',
+            'swift_cuscatlan' => 'SWIFT a Banco Cuscatlán. Aplica corresponsal ($25) y comisión receptora de $12.50.',
+            'swift_promerica' => 'SWIFT a Banco Promerica. Aplica corresponsal ($25) y comisión receptora de $20.00.',
+            'swift_industrial' => 'SWIFT a Banco Industrial. Aplica corresponsal ($25) y comisión receptora de $10.00.',
+            'western_union' => 'Western Union aplica una comisión aproximada del 4% sobre el envío. Cobro rápido.',
+            'paypal' => 'PayPal retiene 5.4% + $0.30 y cobra un retiro plano de $5.00 a cuenta local. Muy costoso.',
+            'stripe' => 'Stripe aplica 3.9% + $0.30 de comisión y cobra un retiro plano de $5.00 a bancos locales.',
+            'deel' => 'Deel cobra $5.00 fijos por recibir y $2.00 por transferir directamente a tu banco salvadoreño. Altamente eficiente para montos medianos.',
+            'upwork' => 'Upwork retiene 10% por sus servicios sobre el contrato y cobra $2.00 fijos por transferir directamente a cuenta local.',
+            'bitcoin' => 'Bajo costo por transferir, pero con alta volatilidad. Requiere cashout a cuenta local (~$2.00).',
+            'hugo_cash' => 'Pasarela de pago local con comisión del 3% + $0.25 por procesar cobros de tarjetas extranjeras.',
+            default => 'Comisiones estimadas basadas en tarifas promedio.'
+        };
     }
 }

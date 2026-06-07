@@ -154,21 +154,27 @@ class FreelancerCalculatorTest extends TestCase
         $monto = 2000.00;
         $comparador = FreelancerCalculator::compararPlataformas($monto);
 
-        $this->assertCount(9, $comparador);
+        $this->assertCount(14, $comparador);
 
         // First platform should be Deel at $2000 (flat fee is cheaper)
         $this->assertEquals('deel', $comparador[0]['id']);
         $this->assertEquals(1993.00, $comparador[0]['neto']);
 
-        // Second platform should be Wise
-        $this->assertEquals('wise', $comparador[1]['id']);
-        $this->assertEquals(1977.00, $comparador[1]['neto']);
+        // Second platform should be Bitcoin
+        $this->assertEquals('bitcoin', $comparador[1]['id']);
+        $this->assertEquals(1978.00, $comparador[1]['neto']);
+
+        // Third platform should be Wise
+        $this->assertEquals('wise', $comparador[2]['id']);
+        $this->assertEquals(1977.00, $comparador[2]['neto']);
 
         // Verify that Deel and others exist in the list
         $ids = array_column($comparador, 'id');
         $this->assertContains('payoneer', $ids);
-        $this->assertContains('swift', $ids);
+        $this->assertContains('swift_agricola', $ids);
+        $this->assertContains('swift_bac', $ids);
         $this->assertContains('paypal', $ids);
         $this->assertContains('stripe', $ids);
+        $this->assertContains('bitcoin', $ids);
     }
 }
