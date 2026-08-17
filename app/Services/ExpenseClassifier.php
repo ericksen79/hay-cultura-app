@@ -228,10 +228,10 @@ class ExpenseClassifier
      */
     public static function clasificar(array $gastos): array
     {
-        return array_map(function($g) {
+        return array_map(function ($g) {
             $nombre = is_array($g) ? ($g['nombre'] ?? '') : $g;
-            $precio = is_array($g) ? (float)($g['precio'] ?? 0) : 0.0;
-            
+            $precio = is_array($g) ? (float) ($g['precio'] ?? 0) : 0.0;
+
             $res = self::clasificarUno($nombre);
             $res['precio'] = $precio;
 
@@ -241,9 +241,9 @@ class ExpenseClassifier
                 $res['porcentaje_depreciacion'] = $pct;
                 $res['depreciacion_anual'] = round($precio * ($pct / 100), 2);
                 $res['depreciacion_mensual'] = round(($precio * ($pct / 100)) / 12, 2);
-                $res['consejo'] = "Se deprecia al {$pct}% anual (LISR Art. 30). " . $res['consejo'];
+                $res['consejo'] = "Se deprecia al {$pct}% anual (LISR Art. 30). ".$res['consejo'];
             }
-            
+
             return $res;
         }, $gastos);
     }
@@ -260,7 +260,7 @@ class ExpenseClassifier
             'laptop', 'computadora', 'computador', 'pc', 'mac', 'imac', 'macbook',
             'ipad', 'tablet', 'monitor', 'teclado', 'mouse', 'impresora',
             'escaner', 'escáner', 'router', 'disco', 'ssd', 'ram', 'ups', 'switch',
-            'licencia de software', 'software adquirido', 'software', 'sistema', 'aplicación', 'dominio web'
+            'licencia de software', 'software adquirido', 'software', 'sistema', 'aplicación', 'dominio web',
         ];
         foreach ($tecnologia as $p) {
             if (str_contains($n, $p)) {
@@ -271,7 +271,7 @@ class ExpenseClassifier
         // 2. Vehículos y transporte (25% anual - 4 años de vida útil)
         $vehiculos = [
             'vehículo', 'vehiculo', 'carro', 'auto', 'automóvil',
-            'motocicleta', 'moto', 'camioneta', 'pickup', 'furgoneta', 'bicicleta'
+            'motocicleta', 'moto', 'camioneta', 'pickup', 'furgoneta', 'bicicleta',
         ];
         foreach ($vehiculos as $p) {
             if (str_contains($n, $p)) {
@@ -281,7 +281,7 @@ class ExpenseClassifier
 
         // 3. Edificaciones e inmuebles de la empresa (5% anual - 20 años de vida útil)
         $edificios = [
-            'edificio', 'local comercial', 'bodega', 'oficina', 'taller', 'casa negocio'
+            'edificio', 'local comercial', 'bodega', 'oficina', 'taller', 'casa negocio',
         ];
         foreach ($edificios as $p) {
             if (str_contains($n, $p)) {
@@ -301,29 +301,40 @@ class ExpenseClassifier
         // Si el gasto incluye "negocio", "empresa", "local" o "trabajo"
         // es un contexto de negocio — va directo a deducibles/activos
         $esContextoNegocio = str_contains($n, 'negocio') || str_contains($n, 'empresa')
-                          || str_contains($n, 'local')   || str_contains($n, 'trabajo')
-                          || str_contains($n, 'taller')  || str_contains($n, 'industrial');
+                          || str_contains($n, 'local') || str_contains($n, 'trabajo')
+                          || str_contains($n, 'taller') || str_contains($n, 'industrial');
 
         if ($esContextoNegocio) {
             foreach (self::$activos as $p) {
-                if (str_contains($n, $p)) return self::respuesta($gasto, 'activo');
+                if (str_contains($n, $p)) {
+                    return self::respuesta($gasto, 'activo');
+                }
             }
             foreach (self::$deducibles as $p) {
-                if (str_contains($n, $p)) return self::respuesta($gasto, 'deducible');
+                if (str_contains($n, $p)) {
+                    return self::respuesta($gasto, 'deducible');
+                }
             }
+
             // Si tiene contexto de negocio pero no matchea, es deducible por defecto
             return self::respuesta($gasto, 'deducible');
         }
 
         // Sin contexto: no deducibles → activos → deducibles → revisar
         foreach (self::$noDeducibles as $p) {
-            if (str_contains($n, $p)) return self::respuesta($gasto, 'no_deducible');
+            if (str_contains($n, $p)) {
+                return self::respuesta($gasto, 'no_deducible');
+            }
         }
         foreach (self::$activos as $p) {
-            if (str_contains($n, $p)) return self::respuesta($gasto, 'activo');
+            if (str_contains($n, $p)) {
+                return self::respuesta($gasto, 'activo');
+            }
         }
         foreach (self::$deducibles as $p) {
-            if (str_contains($n, $p)) return self::respuesta($gasto, 'deducible');
+            if (str_contains($n, $p)) {
+                return self::respuesta($gasto, 'deducible');
+            }
         }
 
         return self::respuesta($gasto, 'revisar');
@@ -331,34 +342,34 @@ class ExpenseClassifier
 
     private static function respuesta(string $gasto, string $tipo): array
     {
-        $config = match($tipo) {
+        $config = match ($tipo) {
             'deducible' => [
-                'etiqueta'    => 'Deducible',
+                'etiqueta' => 'Deducible',
                 'descripcion' => 'Reduce tu renta imponible — pagas menos ISR (Art. 29 LISR)',
-                'consejo'     => 'Guarda la factura o CCF como respaldo.',
-                'base_legal'  => 'Art. 29 LISR',
-                'color'       => 'green',
+                'consejo' => 'Guarda la factura o CCF como respaldo.',
+                'base_legal' => 'Art. 29 LISR',
+                'color' => 'green',
             ],
             'no_deducible' => [
-                'etiqueta'    => 'No deducible',
+                'etiqueta' => 'No deducible',
                 'descripcion' => 'Gasto personal — no reduce tu carga fiscal (Art. 29-A LISR)',
-                'consejo'     => 'No incluyas este gasto en tu declaración de renta.',
-                'base_legal'  => 'Art. 29-A LISR',
-                'color'       => 'red',
+                'consejo' => 'No incluyas este gasto en tu declaración de renta.',
+                'base_legal' => 'Art. 29-A LISR',
+                'color' => 'red',
             ],
             'activo' => [
-                'etiqueta'    => 'Activo depreciable',
+                'etiqueta' => 'Activo depreciable',
                 'descripcion' => 'Bien duradero — se deduce gradualmente año a año (Art. 30 LISR)',
-                'consejo'     => 'Regístralo como activo fijo y deprecíalo con tu contador.',
-                'base_legal'  => 'Art. 30 LISR',
-                'color'       => 'blue',
+                'consejo' => 'Regístralo como activo fijo y deprecíalo con tu contador.',
+                'base_legal' => 'Art. 30 LISR',
+                'color' => 'blue',
             ],
             'revisar' => [
-                'etiqueta'    => 'Consultar contador',
+                'etiqueta' => 'Consultar contador',
                 'descripcion' => 'No pudimos clasificarlo automáticamente',
-                'consejo'     => 'Depende del uso — si es para el negocio puede ser deducible.',
-                'base_legal'  => 'Art. 29 LISR',
-                'color'       => 'amber',
+                'consejo' => 'Depende del uso — si es para el negocio puede ser deducible.',
+                'base_legal' => 'Art. 29 LISR',
+                'color' => 'amber',
             ],
         };
 

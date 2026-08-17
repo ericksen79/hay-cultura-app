@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Services\ExpenseClassifier;
 use App\Services\ISRCalculator;
 use App\Services\IVACalculator;
 use App\Services\ProfitCalculator;
-use App\Services\ExpenseClassifier;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CalculatorController extends Controller
 {
@@ -15,24 +15,24 @@ class CalculatorController extends Controller
     public function salud(Request $request): JsonResponse
     {
         $d = $request->validate([
-            'ventas_totales'   => 'required|numeric|min:0',
-            'costos_directos'  => 'required|numeric|min:0',
-            'gastos_fijos'     => 'required|numeric|min:0',
+            'ventas_totales' => 'required|numeric|min:0',
+            'costos_directos' => 'required|numeric|min:0',
+            'gastos_fijos' => 'required|numeric|min:0',
             'gastos_variables' => 'required|numeric|min:0',
-            'ventas_gravadas'  => 'nullable|numeric|min:0',
-            'compras_cf'       => 'nullable|numeric|min:0',
+            'ventas_gravadas' => 'nullable|numeric|min:0',
+            'compras_cf' => 'nullable|numeric|min:0',
         ]);
 
         $utilidad = ProfitCalculator::calcularUtilidad(
             $d['ventas_totales'], $d['costos_directos'],
-            $d['gastos_fijos'],   $d['gastos_variables']
+            $d['gastos_fijos'], $d['gastos_variables']
         );
 
         // Usar utilidad_operativa (antes de la reserva plana del 15%) para ISR exacto
         $isr = ISRCalculator::calcularPersonaNatural($utilidad['utilidad_operativa'] * 12);
 
         $iva = null;
-        if (!empty($d['ventas_gravadas'])) {
+        if (! empty($d['ventas_gravadas'])) {
             $iva = IVACalculator::calcular($d['ventas_gravadas'], $d['compras_cf'] ?? 0);
         }
 
@@ -45,9 +45,9 @@ class CalculatorController extends Controller
         return response()->json([
             'ok' => true,
             'utilidad' => $utilidad,
-            'isr'      => $isr,
-            'iva'      => $iva,
-            'retiro'   => $retiro,
+            'isr' => $isr,
+            'iva' => $iva,
+            'retiro' => $retiro,
         ]);
     }
 
@@ -55,14 +55,14 @@ class CalculatorController extends Controller
     public function utilidad(Request $request): JsonResponse
     {
         $d = $request->validate([
-            'ventas'    => 'required|numeric|min:0',
-            'costos'    => 'required|numeric|min:0',
-            'fijos'     => 'required|numeric|min:0',
+            'ventas' => 'required|numeric|min:0',
+            'costos' => 'required|numeric|min:0',
+            'fijos' => 'required|numeric|min:0',
             'variables' => 'required|numeric|min:0',
         ]);
 
         return response()->json([
-            'ok'        => true,
+            'ok' => true,
             'resultado' => ProfitCalculator::calcularUtilidad(
                 $d['ventas'], $d['costos'], $d['fijos'], $d['variables']
             ),
@@ -74,7 +74,7 @@ class CalculatorController extends Controller
     {
         $d = $request->validate([
             'renta_neta_anual' => 'required|numeric|min:0',
-            'tipo_persona'     => 'required|in:natural,juridica',
+            'tipo_persona' => 'required|in:natural,juridica',
         ]);
 
         $resultado = $d['tipo_persona'] === 'natural'
@@ -89,11 +89,11 @@ class CalculatorController extends Controller
     {
         $d = $request->validate([
             'ventas_gravadas' => 'required|numeric|min:0',
-            'compras_con_cf'  => 'required|numeric|min:0',
+            'compras_con_cf' => 'required|numeric|min:0',
         ]);
 
         return response()->json([
-            'ok'        => true,
+            'ok' => true,
             'resultado' => IVACalculator::calcular($d['ventas_gravadas'], $d['compras_con_cf']),
         ]);
     }
@@ -102,13 +102,13 @@ class CalculatorController extends Controller
     public function retiro(Request $request): JsonResponse
     {
         $d = $request->validate([
-            'utilidad_neta'     => 'required|numeric|min:0',
+            'utilidad_neta' => 'required|numeric|min:0',
             'reserva_impuestos' => 'required|numeric|min:0',
-            'caja_minima'       => 'required|numeric|min:0',
+            'caja_minima' => 'required|numeric|min:0',
         ]);
 
         return response()->json([
-            'ok'        => true,
+            'ok' => true,
             'resultado' => ProfitCalculator::calcularRetiroSeguro(
                 $d['utilidad_neta'], $d['reserva_impuestos'], $d['caja_minima']
             ),
@@ -119,7 +119,7 @@ class CalculatorController extends Controller
     public function gastos(Request $request): JsonResponse
     {
         $d = $request->validate([
-            'gastos'          => 'required|array|min:1',
+            'gastos' => 'required|array|min:1',
             'gastos.*.nombre' => 'required|string|max:100',
             'gastos.*.precio' => 'nullable|numeric|min:0',
         ]);
@@ -128,12 +128,12 @@ class CalculatorController extends Controller
 
         // Ordenar: deducible -> activo -> revisar (consultar) -> no_deducible
         $orden = ['deducible' => 1, 'activo' => 2, 'revisar' => 3, 'no_deducible' => 4];
-        usort($resultados, function($a, $b) use ($orden) {
+        usort($resultados, function ($a, $b) use ($orden) {
             return $orden[$a['tipo']] <=> $orden[$b['tipo']];
         });
 
         return response()->json([
-            'ok'         => true,
+            'ok' => true,
             'resultados' => $resultados,
         ]);
     }

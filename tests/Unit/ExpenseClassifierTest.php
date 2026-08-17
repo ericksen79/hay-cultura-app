@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use App\Services\ExpenseClassifier;
+use PHPUnit\Framework\TestCase;
 
 class ExpenseClassifierTest extends TestCase
 {

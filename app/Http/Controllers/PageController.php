@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class PageController extends Controller
 {
     public function home()
@@ -38,6 +36,6 @@ class PageController extends Controller
 
         abort_unless(in_array($tab, $validos), 404);
 
-        return view('components.calc-' . $tab);
+        return view('components.calc-'.$tab);
     }
 }

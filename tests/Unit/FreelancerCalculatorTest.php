@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use App\Services\FreelancerCalculator;
+use PHPUnit\Framework\TestCase;
 
 class FreelancerCalculatorTest extends TestCase
 {
@@ -20,7 +20,7 @@ class FreelancerCalculatorTest extends TestCase
             'gastos_deducibles' => [],
             'inscrito_hacienda' => false,
             'cotiza_isss' => 'no',
-            'fondo_emergencia_pct' => 0
+            'fondo_emergencia_pct' => 0,
         ];
 
         $res = FreelancerCalculator::calcularSalud($input);
@@ -46,7 +46,7 @@ class FreelancerCalculatorTest extends TestCase
             'gastos_deducibles' => [],
             'inscrito_hacienda' => false,
             'cotiza_isss' => 'no',
-            'fondo_emergencia_pct' => 0
+            'fondo_emergencia_pct' => 0,
         ];
 
         $res = FreelancerCalculator::calcularSalud($input);
@@ -75,7 +75,7 @@ class FreelancerCalculatorTest extends TestCase
             'gastos_deducibles' => [],
             'inscrito_hacienda' => false,
             'cotiza_isss' => 'no',
-            'fondo_emergencia_pct' => 0
+            'fondo_emergencia_pct' => 0,
         ];
 
         $resBajo = FreelancerCalculator::calcularSalud($inputBajo);
@@ -113,7 +113,7 @@ class FreelancerCalculatorTest extends TestCase
             ],
             'inscrito_hacienda' => true, // Activa reserva de ISR
             'cotiza_isss' => 'individual', // ISSS = $40.00
-            'fondo_emergencia_pct' => 10 // 10% de utilidad operativa
+            'fondo_emergencia_pct' => 10, // 10% de utilidad operativa
         ];
 
         $res = FreelancerCalculator::calcularSalud($input);
